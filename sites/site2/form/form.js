@@ -1,12 +1,14 @@
-import { phoneInput } from './phone-input.js';
-import { emailInput } from './email-input.js';
+import { phoneInput, getPhoneValue, setPhoneRequired } from './phone-input.js';
+import { emailInput, getEmailValue, seteEmailRequired } from './email-input.js';
 
 const form = document.getElementById('contact-form');
 
 const nameInput = document.createElement('input');
-nameInput.type = 'text';
+nameInput.type = 'name';
 nameInput.id = 'form-name';
 nameInput.placeholder = 'Ваше имя';
+nameInput.required = true;
+nameInput.maxlength = 50;
 form.appendChild(nameInput);
 
 
@@ -42,10 +44,14 @@ radioData.forEach((item, idx) => {
             phoneBlock.classList.remove('hidden');
             emailBlock.classList.add('hidden');
             emailBlock.children[0].value = '';
+            setPhoneRequired(true);
+            seteEmailRequired(false);
         } else {
             emailBlock.classList.remove('hidden');
             phoneBlock.classList.add('hidden');
             phoneBlock.children[2].value = '';
+            setPhoneRequired(false);
+            seteEmailRequired(true);
         }
     })
 
@@ -73,9 +79,51 @@ form.appendChild(emailBlock);
 const textArea = document.createElement('textarea');
 textArea.id = 'text-area';
 textArea.placeholder = 'Ваше сообщение';
+textArea.required = true;
 form.appendChild(textArea);
 
 const button = document.createElement('button');
 button.id = 'form-button';
 button.textContent = 'Отправить заявку';
+button.type = 'submit';
 form.appendChild(button);
+
+form.onsubmit = async (e) => {
+    if (!form.checkVisibility()) {
+        alert('Заполните обязательные поля');
+        return
+    }
+    e.preventDefault();
+    const send_data = {
+        service: 'Юридический бутик для блогеров',
+        sent_from: 'site2',
+        name: nameInput.value,
+        phone_or_email: document.querySelector('input[name="phone_or_email"]:checked').value,
+        phone: getPhoneValue(),
+        email: getEmailValue(),
+        message: textArea.value
+    }
+    console.log(send_data)
+    button.disabled = true;
+    button.textContent = 'Отправка...';
+    try {
+        const response = await fetch('/api/send_data', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(send_data)
+        });
+        const result = await response.json();
+        if (!response.ok) {
+            throw new Error(result.detail?.message || 'Произошла ошибка отправки данных');
+        }
+        button.disabled = false;
+        button.textContent = 'Отправить заявку';
+        alert('Данные успешно отправлены');
+    } catch (e) {
+        button.disabled = false;
+        button.textContent = 'Отправить заявку';
+        alert(e.message)
+    }
+}

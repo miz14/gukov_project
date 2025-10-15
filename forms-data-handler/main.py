@@ -6,8 +6,8 @@ import os
 import requests
 
 
-app = FastAPI(docs_url=None, redoc_url=None)
-# app = FastAPI()
+# app = FastAPI(docs_url=None, redoc_url=None)
+app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
@@ -113,7 +113,3 @@ async def send_data(data: FormData):
             }
         )
     return {"status": "ok", "message": "Данные успешно отправлены"}
-    
-@app.get("/get_data")
-async def get_data():
-    return {"status": "ok", "data": GOOGLE_POST_URL}

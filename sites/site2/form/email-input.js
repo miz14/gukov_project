@@ -3,6 +3,8 @@ export function emailInput(emailBlock) {
     emailInput.type = 'email';
     emailInput.id = 'email-input';
     emailInput.placeholder = 'Email';
+    emailInput.maxlength = 50;
+    emailInput.required = false;
     emailBlock.appendChild(emailInput);
 
     emailInput.addEventListener('input', () => {
@@ -11,4 +13,11 @@ export function emailInput(emailBlock) {
         const isValid = emailRegex.test(email);
         emailInput.style.borderColor = isValid ? 'green' : 'red';
     });
+}
+export function seteEmailRequired(required) {
+    const emailInput = document.getElementById('email-input');
+    emailInput.required = required;
+}
+export function getEmailValue() {
+    return document.getElementById('email-input').value;
 }

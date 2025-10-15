@@ -25,7 +25,10 @@ export function phoneInput(phoneBlock) {
     const phoneInput = document.createElement('input');
     phoneInput.type = 'tel';
     phoneInput.id = 'phone-input';
+    phoneInput.maxLength = 14;
     phoneInput.placeholder = '(999) 999-99-99';
+    phoneInput.required = true;
+    phoneInput.autocomplete = 'tel-national';
 
     function getPatternForCountry(countryCode) {
         const code = String(countryCode);
@@ -62,121 +65,21 @@ export function phoneInput(phoneBlock) {
     phoneBlock.appendChild(phoneIndex);
     phoneBlock.appendChild(phoneInput);
 }
+export function setPhoneRequired(required) {
+    const phoneInput = document.getElementById('phone-input');
+    phoneInput.required = required;
+}
 
-
-
-
-
-
-
-
-// function getPatternForCountry(countryCode) {
-//     const code = String(countryCode);
-//     const template = (x) => `${x[1] ? ' (' + x[1] : ''}${x[2] ? ') ' + x[2] : ''}${x[3] ? '-' + x[3] : ''}${x[4] ? '-' + x[4] : ''}`;
-
-//     if (code.length === 1) {
-//         return {
-//             pattern: /(\d{0,3})(\d{0,3})(\d{0,2})(\d{0,2})/,
-//             placeholder: `(999) 999-99-99`,
-//             template: template
-//         }
-//     } else if (code.length === 2) {
-//         return {
-//             pattern: /(\d{0,3})(\d{0,3})(\d{0,2})(\d{0,2})/,
-//             placeholder: `(999) 999-99-99`,
-//             template: template
-//         }
-//     } else {
-//         return {
-//             pattern: /(\d{0,2})(\d{0,3})(\d{0,2})(\d{0,2})/,
-//             placeholder: `(99) 999-99-99`,
-//             template: template
-//         }
-//     }
-// }
-
-// const countryPlaceholders = {
-//     '7': '(999) 999-99-99',
-//     '375': '(99) 999-99-99',
-//     '380': '(99) 999-99-99',
-//     '77': '(999) 999-99-99',
-//     '1': '(999) 999-9999',
-//     '44': '9999 999 999',
-//     '49': '99999 99999'
-// };
-
-// // Обработчик смены страны
-// // countrySelect.addEventListener('change', function() {
-// //   phoneInput.value = `+${this.value}`; // Очищаем поле при смене страны
-// // });
-
-// // Маска ввода
-// phoneInput.addEventListener('input', function (e) {
-//     const patternData = getPatternForCountry(countrySelect.value);
-
-//     let numbers = e.target.value.replace(/\D/g, '');
-//     let x = numbers.match(patternData.pattern);
-
-//     e.target.value = patternData.template(x);
-// });
-// // document.getElementById('simple-phone').addEventListener('input', function(e) {
-// //     let x = e.target.value.replace(/\D/g, '').match(/(\d{0,1})(\d{0,3})(\d{0,3})(\d{0,2})(\d{0,2})/);
-// //     e.target.value = '+7' + (x[2] ? ' (' + x[2] : '') + (x[3] ? ') ' + x[3] : '') + (x[4] ? '-' + x[4] : '') + (x[5] ? '-' + x[5] : '');
-// // });
-
-
-// // Функция проверки полного ввода
-// function isPhoneComplete() {
-//     const countryCode = countrySelect.value;
-//     const value = phoneInput.value.replace(/\D/g, '');
-
-//     const minLengths = {
-//         '7': 11, // 10 цифр без +7
-//         '375': 12, // 9 цифр без +375
-//         '380': 12, // 9 цифр без +380
-//         '77': 11, // 10 цифр без +7
-//         '1': 11, // 10 цифр без +1
-//         '44': 12, // 10 цифр без +44
-//         '49': 13  // 11 цифр без +49
-//     };
-
-//     return value.length >= minLengths[countryCode];
-// }
-
-// // Функция получения чистого номера
-// function getCleanPhone() {
-//     return phoneInput.value.replace(/\D/g, '');
-// }
-
-// // Функция получения номера с кодом страны
-// function getFullPhone() {
-//     return '+' + getCleanPhone();
-// }
-
-// </script >
-
-//     <style>
-//         .phone-input {
-//             display: flex;
-//         align-items: center;
-//         margin-bottom: 10px;
-// }
-
-//         #simple-phone {
-//             flex: 1;
-// }
-
-//         #country-code, #simple-phone {
-//             border: 1px solid #ccc;
-//         border-radius: 4px;
-//         font-size: 14px;
-// }
-
-//         #simple-phone:valid {
-//             border - color: green;
-// }
-
-//         #simple-phone:invalid {
-//             border - color: red;
-// }
-//     </style>
+export function setShowPhone(show) {
+    if (show) {
+        document.getElementById('phone-block').classList.remove('hidden');
+    } else {
+        document.getElementById('phone-block').classList.add('hidden');
+    }
+    
+}
+export function getPhoneValue() {
+    const index = document.getElementById('phone-index').textContent;
+    const phone = document.getElementById('phone-input').value.replace(/\D/g, "");
+    return index + phone;
+}

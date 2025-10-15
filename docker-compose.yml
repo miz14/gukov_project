@@ -4,16 +4,25 @@ services:
     container_name: reverse-proxy
     restart: unless-stopped
     ports:
-      - "8000:80"
+      - "8001:8001"
+      - "8002:8002"
     networks:
       - app-network
     depends_on:
       - site1
+      - site2
       - forms-data-handler
 
   site1:
     build: ./sites/site1
     container_name: site1
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  site2:
+    build: ./sites/site2
+    container_name: site2
     restart: unless-stopped
     networks:
       - app-network
