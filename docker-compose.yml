@@ -1,43 +1,17 @@
-version: '3.8'
-
 services:
-  traefik:
-    image: traefik:v2.9
-    container_name: traefik
+  reverse-proxy:
+    build: ./reverse-proxy
+    container_name: reverse-proxy
     restart: unless-stopped
-    command:
-      # Включение API и Dashboard
-      - "--api.dashboard=true"
-      - "--api.insecure=true"
-      # Docker провайдер
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--providers.docker.network=app-network"
-      # Точки входа
-      - "--entrypoints.web.address=:80"
-      - "--entrypoints.websecure.address=:443"
-      # Логи
-      - "--log.level=INFO"
-      - "--accesslog=true"
     ports:
-      - "80:80"      # HTTP
-      - "443:443"    # HTTPS
-      - "8080:8080"  # Dashboard
-    environment:
-      - SITE1_DOMAIN=${SITE1_DOMAIN}
-      - SITE2_DOMAIN=${SITE2_DOMAIN}
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
-      - "./traefik/ssl:/etc/traefik/ssl"  # Для SSL сертификатов
+      - "8001:8001"
+      - "8002:8002"
     networks:
       - app-network
-    labels:
-      - "traefik.enable=true"
-      # Защита dashboard
-      - "traefik.http.routers.dashboard.rule=Host(`traefik.${SITE1_DOMAIN}`)"
-      - "traefik.http.routers.dashboard.service=api@internal"
-      - "traefik.http.routers.dashboard.middlewares=auth"
-      - "traefik.http.middlewares.auth.basicauth.users=admin:$$apr1$$9Cv/OMGj$$ZomWQzuQbL.3TRCS81a1g/"
+    depends_on:
+      - site1
+      - site2
+      - forms-data-handler
 
   site1:
     build: ./sites/site1
@@ -45,17 +19,6 @@ services:
     restart: unless-stopped
     networks:
       - app-network
-    labels:
-      - "traefik.enable=true"
-      # HTTP -> HTTPS редирект
-      - "traefik.http.routers.site1-http.rule=Host(`${SITE1_DOMAIN}`, `www.${SITE1_DOMAIN}`)"
-      - "traefik.http.routers.site1-http.entrypoints=web"
-      - "traefik.http.routers.site1-http.middlewares=redirect-to-https"
-      # HTTPS
-      - "traefik.http.routers.site1.rule=Host(`${SITE1_DOMAIN}`, `www.${SITE1_DOMAIN}`)"
-      - "traefik.http.routers.site1.entrypoints=websecure"
-      - "traefik.http.routers.site1.tls=true"
-      - "traefik.http.services.site1.loadbalancer.server.port=80"
 
   site2:
     build: ./sites/site2
@@ -63,53 +26,14 @@ services:
     restart: unless-stopped
     networks:
       - app-network
-    labels:
-      - "traefik.enable=true"
-      # HTTP -> HTTPS редирект
-      - "traefik.http.routers.site2-http.rule=Host(`${SITE2_DOMAIN}`, `www.${SITE2_DOMAIN}`)"
-      - "traefik.http.routers.site2-http.entrypoints=web"
-      - "traefik.http.routers.site2-http.middlewares=redirect-to-https"
-      # HTTPS
-      - "traefik.http.routers.site2.rule=Host(`${SITE2_DOMAIN}`, `www.${SITE2_DOMAIN}`)"
-      - "traefik.http.routers.site2.entrypoints=websecure"
-      - "traefik.http.routers.site2.tls=true"
-      - "traefik.http.services.site2.loadbalancer.server.port=80"
 
   forms-data-handler:
     build: ./forms-data-handler/
-    container_name: forms-data-handler
     restart: unless-stopped
     environment:
       - GOOGLE_POST_URL=${GOOGLE_POST_URL}
     networks:
       - app-network
-    labels:
-      - "traefik.enable=true"
-      # API для site1
-      - "traefik.http.routers.api-site1-http.rule=Host(`${SITE1_DOMAIN}`) && PathPrefix(`/api`)"
-      - "traefik.http.routers.api-site1-http.entrypoints=web"
-      - "traefik.http.routers.api-site1-http.middlewares=redirect-to-https"
-      - "traefik.http.routers.api-site1.rule=Host(`${SITE1_DOMAIN}`) && PathPrefix(`/api`)"
-      - "traefik.http.routers.api-site1.entrypoints=websecure"
-      - "traefik.http.routers.api-site1.tls=true"
-      - "traefik.http.services.api-site1.loadbalancer.server.port=3000"
-      # API для site2
-      - "traefik.http.routers.api-site2-http.rule=Host(`${SITE2_DOMAIN}`) && PathPrefix(`/api`)"
-      - "traefik.http.routers.api-site2-http.entrypoints=web"
-      - "traefik.http.routers.api-site2-http.middlewares=redirect-to-https"
-      - "traefik.http.routers.api-site2.rule=Host(`${SITE2_DOMAIN}`) && PathPrefix(`/api`)"
-      - "traefik.http.routers.api-site2.entrypoints=websecure"
-      - "traefik.http.routers.api-site2.tls=true"
-      - "traefik.http.services.api-site2.loadbalancer.server.port=3000"
-
-  # bot1:
-  #   build: ./bots/bot1
-  #   container_name: bot1
-  #   restart: unless-stopped
-  #   environment:
-  #     - BOT1_TOKEN=${BOT1_TOKEN}
-  #   networks:
-  #     - app-network
 
 networks:
   app-network:
