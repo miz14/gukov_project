@@ -95,15 +95,14 @@ form.onsubmit = async (e) => {
     }
     e.preventDefault();
     const send_data = {
-        service: 'Юридический бутик для блогеров',
-        sent_from: 'site2',
+        service: 'Юридические услуги в сфере пенсионного права',
+        sent_from: 'site1',
         name: nameInput.value,
         phone_or_email: document.querySelector('input[name="phone_or_email"]:checked').value,
         phone: getPhoneValue(),
         email: getEmailValue(),
         message: textArea.value
     }
-    console.log(send_data)
     button.disabled = true;
     button.textContent = 'Отправка...';
     try {
@@ -124,6 +123,6 @@ form.onsubmit = async (e) => {
     } catch (e) {
         button.disabled = false;
         button.textContent = 'Отправить заявку';
-        alert(e.message)
+        alert('Не удалось отправить заявку')
     }
 }

@@ -6,13 +6,7 @@ export function emailInput(emailBlock) {
     emailInput.maxlength = 50;
     emailInput.required = false;
     emailBlock.appendChild(emailInput);
-
-    emailInput.addEventListener('input', () => {
-        const email = emailInput.value;
-        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-        const isValid = emailRegex.test(email);
-        emailInput.style.borderColor = isValid ? 'green' : 'red';
-    });
+    emailInput.isValid = () => /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(emailInput.value);
 }
 export function seteEmailRequired(required) {
     const emailInput = document.getElementById('email-input');

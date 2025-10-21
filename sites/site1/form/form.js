@@ -103,7 +103,6 @@ form.onsubmit = async (e) => {
         email: getEmailValue(),
         message: textArea.value
     }
-    console.log(send_data)
     button.disabled = true;
     button.textContent = 'Отправка...';
     try {
@@ -124,6 +123,6 @@ form.onsubmit = async (e) => {
     } catch (e) {
         button.disabled = false;
         button.textContent = 'Отправить заявку';
-        alert(e.message)
+        alert('Не удалось отправить заявку')
     }
 }

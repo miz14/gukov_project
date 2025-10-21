@@ -7,28 +7,11 @@
     overflow: hidden;
     height: 52px;
 }
-#country-select  {
-    height: 100%;
-    padding: 5px;
-    font-size: 14px;
-    outline: none;
-    margin-right: 10px;
-    text-align-last: center;
-    border: none;
-    border-right: 1px solid var(--cl-border);
-    background: none;
-}
-#country-select option {
-    /* text-align: center; */
-}
-#phone-index {
-    font-size: 16px;
-    font-family: 'Arial', sans-serif;
-    margin-right: 4px;
-}
 #phone-input {
+    height: 52px;
+    width: 100%;
     outline: none;
     border: none;
+    padding: 5px 20px;
     font-size: 16px;
-    font-family: 'Arial', sans-serif;
 }
