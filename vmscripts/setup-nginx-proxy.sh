@@ -8,7 +8,7 @@ echo "=== Настройка nginx reverse proxy ==="
 # Переменные
 DOMAIN1="${DOMAIN1:-site1.example.com}"
 DOMAIN2="${DOMAIN2:-site2.example.com}"
-DOCKER_PORT1="${PORT1:-8003}"
+DOCKER_PORT1="${PORT1:-8001}"
 DOCKER_PORT2="${PORT2:-8002}"
 NGINX_DIR="/etc/nginx"
 SITES_AVAILABLE="$NGINX_DIR/sites-available"
@@ -41,35 +41,35 @@ cat > "/tmp/$SITE_CONFIG" << EOF
 # Reverse Proxy конфигурация для Docker приложений
 # Файл создан автоматически скриптом setup-nginx-proxy.sh
 
-# Сервер для $DOMAIN1
-server {
-    listen 80;
-    server_name $DOMAIN1 www.$DOMAIN1;
+# # Сервер для $DOMAIN1
+# server {
+#     listen 80;
+#     server_name $DOMAIN1 www.$DOMAIN1;
 
-    # Базовые настройки
-    client_max_body_size 100M;
-    proxy_connect_timeout 600;
-    proxy_send_timeout 600;
-    proxy_read_timeout 600;
-    send_timeout 600;
+#     # Базовые настройки
+#     client_max_body_size 100M;
+#     proxy_connect_timeout 600;
+#     proxy_send_timeout 600;
+#     proxy_read_timeout 600;
+#     send_timeout 600;
 
-    location / {
-        proxy_pass http://localhost:$DOCKER_PORT1;
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \$scheme;
-        proxy_set_header X-Forwarded-Host \$host;
+#     location / {
+#         proxy_pass http://localhost:$DOCKER_PORT1;
+#         proxy_set_header Host \$host;
+#         proxy_set_header X-Real-IP \$remote_addr;
+#         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+#         proxy_set_header X-Forwarded-Proto \$scheme;
+#         proxy_set_header X-Forwarded-Host \$host;
         
-        # Дополнительные настройки прокси
-        proxy_redirect off;
-        proxy_buffering off;
-    }
+#         # Дополнительные настройки прокси
+#         proxy_redirect off;
+#         proxy_buffering off;
+#     }
 
-    # Логи
-    access_log /var/log/nginx/${DOMAIN1}_access.log;
-    error_log /var/log/nginx/${DOMAIN1}_error.log;
-}
+#     # Логи
+#     access_log /var/log/nginx/${DOMAIN1}_access.log;
+#     error_log /var/log/nginx/${DOMAIN1}_error.log;
+# }
 
 # Сервер для $DOMAIN2
 server {

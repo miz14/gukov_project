@@ -11,7 +11,7 @@ services:
     environment:
       - SITE1_DOMAIN=${SITE1_DOMAIN}
       - SITE2_DOMAIN=${SITE2_DOMAIN}
-      - PORT1=8003
+      - PORT1=8001
       - PORT2=8002
     command: >
       sh -c "
