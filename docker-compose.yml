@@ -1,8 +1,12 @@
 services:
-  nginx-proxy:
+  nginx-setup:
     image: alpine
-    container_name: nginx-proxy
+    container_name: nginx-setup-host
     volumes:
+      - /etc/nginx:/etc/nginx:rw
+      - /var/log/nginx:/var/log/nginx:rw
+      - /usr/sbin/nginx:/usr/sbin/nginx:ro
+      - /lib/systemd/system/nginx.service:/lib/systemd/system/nginx.service:ro
       - ./scripts:/scripts
     environment:
       - SITE1_DOMAIN=${SITE1_DOMAIN}
@@ -15,31 +19,29 @@ services:
         chmod +x /scripts/setup-nginx-proxy.sh &&
         /scripts/setup-nginx-proxy.sh
       " 
-    restart: unless-stopped
+    restart: no
     network_mode: host
     privileged: true
-    ports:
-      - "80:80"
     depends_on:
       - site1
       - site2
 
-  # reverse-proxy:
-  #   build: ./reverse-proxy
-  #   container_name: reverse-proxy
-  #   restart: unless-stopped
-  #   ports:
-  #     - "127.0.0.1:8001:8001"
-  #     - "127.0.0.1:8002:8002"
-  #   networks:
-  #     - app-network
-  #   environment:
-  #     - SITE1_DOMAIN=${SITE1_DOMAIN}
-  #     - SITE2_DOMAIN=${SITE2_DOMAIN}
-  #   depends_on:
-  #     - site1
-  #     - site2
-  #     - forms-data-handler
+  reverse-proxy:
+    build: ./reverse-proxy
+    container_name: reverse-proxy
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8001:8001"
+      - "127.0.0.1:8002:8002"
+    networks:
+      - app-network
+    environment:
+      - SITE1_DOMAIN=${SITE1_DOMAIN}
+      - SITE2_DOMAIN=${SITE2_DOMAIN}
+    depends_on:
+      - site1
+      - site2
+      - forms-data-handler
 
   site1:
     build: ./sites/site1
