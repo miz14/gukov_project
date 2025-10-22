@@ -22,11 +22,11 @@ if [ ! -w "$NGINX_DIR" ]; then
     exit 1
 fi
 
-# Установка nginx в Alpine контейнере
+# Проверяем, что nginx установлен на хосте
 if ! command -v nginx &> /dev/null; then
-    echo "Установка nginx в Alpine..."
-    apk update
-    apk add nginx
+    echo "Ошибка: nginx не установлен на хост-машине"
+    echo "Установите: sudo apt update && sudo apt install nginx"
+    exit 1
 fi
 
 # Создаем необходимые директории
@@ -124,16 +124,14 @@ if [ -L "$SITES_ENABLED/default" ]; then
     echo "Отключен дефолтный сайт nginx"
 fi
 
-# Проверяем синтаксис nginx
-echo "Проверка синтаксиса nginx..."
-nginx -t
+# Перезапускаем nginx хоста
+echo "Перезапуск системного nginx..."
+if command -v systemctl &> /dev/null; then
+    systemctl restart nginx
+else
+    service nginx restart
+fi
 
-# Запускаем nginx в фоновом режиме
-echo "Запуск nginx..."
-nginx -g "daemon off;" &
-
-echo ""
-echo "=== Настройка завершена успешно! ==="
-echo "Nginx запущен в контейнере и проксирует:"
-echo "  http://$DOMAIN1 -> localhost:$DOCKER_PORT1"
-echo "  http://$DOMAIN2 -> localhost:$DOCKER_PORT2"
+echo "Настройка завершена! Файлы созданы на хост-машине:"
+echo "  Конфиг: $SITES_AVAILABLE/$SITE_CONFIG"
+echo "  Ссылка: $SITES_ENABLED/$SITE_CONFIG"

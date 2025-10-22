@@ -5,6 +5,8 @@ services:
     volumes:
       - /etc/nginx:/etc/nginx
       - /var/log/nginx:/var/log/nginx
+      - /run/systemd/system:/run/systemd/system:rw
+      - /usr/sbin/nginx:/usr/sbin/nginx:ro
       - ./scripts:/scripts
     environment:
       - SITE1_DOMAIN=${SITE1_DOMAIN}
@@ -13,7 +15,6 @@ services:
       - PORT2=8002
     command: >
       sh -c "
-        apk add --no-cache nginx &&
         chmod +x /scripts/setup-nginx-proxy.sh &&
         /scripts/setup-nginx-proxy.sh
       " 
