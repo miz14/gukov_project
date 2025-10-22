@@ -1,5 +1,6 @@
 services:
   nginx-setup:
+    profile: first-setup
     build: 
       context: ./nginx-setup-host
       dockerfile: Dockerfile
@@ -7,7 +8,8 @@ services:
     volumes:
       - /etc/nginx:/etc/nginx
       - /var/log/nginx:/var/log/nginx
-      # - ./nginx-setup-host/scripts:/scripts
+      - /etc/letsencrypt:/etc/letsencrypt
+      - /var/lib/letsencrypt:/var/lib/letsencrypt
     environment:
       - SITE1_DOMAIN=${SITE1_DOMAIN}
       - SITE2_DOMAIN=${SITE2_DOMAIN}
@@ -16,11 +18,9 @@ services:
     restart: no
     network_mode: host
     privileged: true
-    depends_on:
-      - site1
-      - site2
 
   reverse-proxy:
+    profile: prod
     build: ./reverse-proxy
     container_name: reverse-proxy
     restart: unless-stopped
@@ -38,6 +38,7 @@ services:
       - forms-data-handler
 
   site1:
+    profile: prod
     build: ./sites/site1
     container_name: site1
     restart: unless-stopped
@@ -45,6 +46,7 @@ services:
       - app-network
 
   site2:
+    profile: prod
     build: ./sites/site2
     container_name: site2
     restart: unless-stopped
@@ -61,6 +63,7 @@ services:
   #     - app-network
 
   forms-data-handler:
+    profile: prod
     build: ./forms-data-handler/
     restart: unless-stopped
     environment:
