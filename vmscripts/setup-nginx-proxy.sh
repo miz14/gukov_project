@@ -31,8 +31,8 @@ fi
 
 # Создание конфигурации nginx
 echo "Создание конфигурации для доменов:"
-echo "  - $DOMAIN1 -> reverse-proxy:$DOCKER_PORT1"
-echo "  - $DOMAIN2 -> reverse-proxy:$DOCKER_PORT2"
+echo "  - $DOMAIN1 -> localhost:$DOCKER_PORT1"
+echo "  - $DOMAIN2 -> localhost:$DOCKER_PORT2"
 
 cat > "/tmp/$SITE_CONFIG" << EOF
 # Reverse Proxy конфигурация для Docker приложений
@@ -51,7 +51,7 @@ server {
     send_timeout 600;
 
     location / {
-        proxy_pass http://reverse-proxy:$DOCKER_PORT1;
+        proxy_pass http://localhost:$DOCKER_PORT1;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
@@ -81,7 +81,7 @@ server {
     send_timeout 600;
 
     location / {
-        proxy_pass http://reverse-proxy:$DOCKER_PORT2;
+        proxy_pass http://localhost:$DOCKER_PORT2;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
