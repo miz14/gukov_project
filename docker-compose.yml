@@ -13,8 +13,8 @@ services:
       - PORT2=8002
     command: > 
       sh -c "
-        mkdir -p /scripts &&
-        ls /
+        ls / &&
+        ls /scripts
       "
     restart: no
     network_mode: host
