@@ -1,25 +1,52 @@
 services:
-  reverse-proxy:
-    build: ./reverse-proxy
-    container_name: reverse-proxy
-    restart: unless-stopped
-    ports:
-      - "127.0.0.1:8001:8001"
-      - "127.0.0.1:8002:8002"
-    networks:
-      - app-network
+  nginx-proxy:
+    image: alpine
+    container_name: nginx-proxy
+    volumes:
+      - ./scripts:/scripts
     environment:
       - SITE1_DOMAIN=${SITE1_DOMAIN}
       - SITE2_DOMAIN=${SITE2_DOMAIN}
+      - PORT1=8001
+      - PORT2=8002
+    command: >
+      sh -c "
+        apk add --no-cache nginx &&
+        chmod +x /scripts/setup-nginx-proxy.sh &&
+        /scripts/setup-nginx-proxy.sh
+      " 
+    restart: unless-stopped
+    network_mode: host
+    privileged: true
+    ports:
+      - "80:80"
     depends_on:
       - site1
       - site2
-      - forms-data-handler
+
+  # reverse-proxy:
+  #   build: ./reverse-proxy
+  #   container_name: reverse-proxy
+  #   restart: unless-stopped
+  #   ports:
+  #     - "127.0.0.1:8001:8001"
+  #     - "127.0.0.1:8002:8002"
+  #   networks:
+  #     - app-network
+  #   environment:
+  #     - SITE1_DOMAIN=${SITE1_DOMAIN}
+  #     - SITE2_DOMAIN=${SITE2_DOMAIN}
+  #   depends_on:
+  #     - site1
+  #     - site2
+  #     - forms-data-handler
 
   site1:
     build: ./sites/site1
     container_name: site1
     restart: unless-stopped
+    ports:
+      - "127.0.0.1:8001:80"
     networks:
       - app-network
 
@@ -27,6 +54,8 @@ services:
     build: ./sites/site2
     container_name: site2
     restart: unless-stopped
+    ports:
+      - "127.0.0.1:8002:80"
     networks:
       - app-network
 

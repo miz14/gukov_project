@@ -6,28 +6,31 @@ set -e
 echo "=== Настройка nginx reverse proxy ==="
 
 # Переменные
-DOMAIN1="${1:-site1.example.com}"
-DOMAIN2="${2:-site2.example.com}"
-DOCKER_PORT1="${3:-8001}"
-DOCKER_PORT2="${4:-8002}"
+DOMAIN1="${DOMAIN1:-site1.example.com}"
+DOMAIN2="${DOMAIN2:-site2.example.com}"
+DOCKER_PORT1="${PORT1:-8001}"
+DOCKER_PORT2="${PORT2:-8002}"
 NGINX_DIR="/etc/nginx"
 SITES_AVAILABLE="$NGINX_DIR/sites-available"
 SITES_ENABLED="$NGINX_DIR/sites-enabled"
 SITE_CONFIG="docker-app-proxy"
 
-# Проверка прав
-if [ "$EUID" -ne 0 ]; then
-    echo "Ошибка: Скрипт должен запускаться с правами root"
-    echo "Используйте: sudo ./setup-nginx-proxy.sh [domain1] [domain2] [port1] [port2]"
+# Для контейнера не проверяем root права, но проверяем доступ к nginx директориям
+if [ ! -w "$NGINX_DIR" ]; then
+    echo "Ошибка: Нет доступа для записи в $NGINX_DIR"
+    echo "Убедитесь, что контейнер имеет privileged доступ и монтирование volumes"
     exit 1
 fi
 
-# Проверка установки nginx
+# Установка nginx в Alpine контейнере
 if ! command -v nginx &> /dev/null; then
-    echo "Установка nginx..."
-    apt update
-    apt install -y nginx
+    echo "Установка nginx в Alpine..."
+    apk update
+    apk add nginx
 fi
+
+# Создаем необходимые директории
+mkdir -p "$SITES_AVAILABLE" "$SITES_ENABLED" "/var/log/nginx"
 
 # Создание конфигурации nginx
 echo "Создание конфигурации для доменов:"
@@ -125,25 +128,12 @@ fi
 echo "Проверка синтаксиса nginx..."
 nginx -t
 
-# Перезапускаем nginx
-echo "Перезапуск nginx..."
-systemctl restart nginx
-
-# Проверяем статус
-echo "Проверка статуса nginx..."
-systemctl status nginx --no-pager
+# Запускаем nginx в фоновом режиме
+echo "Запуск nginx..."
+nginx -g "daemon off;" &
 
 echo ""
 echo "=== Настройка завершена успешно! ==="
-echo ""
-echo "Домены настроены:"
-echo "  http://$DOMAIN1 -> Docker контейнер на порту $DOCKER_PORT1"
-echo "  http://$DOMAIN2 -> Docker контейнер на порту $DOCKER_PORT2"
-echo ""
-echo "Не забудьте настроить DNS записи для ваших доменов!"
-echo "A записи должны указывать на IP: $(hostname -I | awk '{print $1}')"
-echo ""
-echo "Для проверки используйте:"
-echo "  curl -H 'Host: $DOMAIN1' http://localhost"
-echo "  или"
-echo "  curl http://$DOMAIN1"
+echo "Nginx запущен в контейнере и проксирует:"
+echo "  http://$DOMAIN1 -> localhost:$DOCKER_PORT1"
+echo "  http://$DOMAIN2 -> localhost:$DOCKER_PORT2"
