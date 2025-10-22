@@ -1,30 +1,28 @@
 services:
-  # nginx-setup:
-  #   image: alpine
-  #   container_name: nginx-setup-host
-  #   volumes:
-  #     - /etc/nginx:/etc/nginx:rw
-  #     - /var/log/nginx:/var/log/nginx:rw
-  #     - /usr/sbin/nginx:/usr/sbin/nginx:ro
-  #     - /lib/systemd/system/nginx.service:/lib/systemd/system/nginx.service:ro
-  #     - ./scripts:/scripts
-  #   environment:
-  #     - SITE1_DOMAIN=${SITE1_DOMAIN}
-  #     - SITE2_DOMAIN=${SITE2_DOMAIN}
-  #     - PORT1=8001
-  #     - PORT2=8002
-  #   command: >
-  #     sh -c "
-  #       apk add --no-cache nginx &&
-  #       chmod +x /scripts/setup-nginx-proxy.sh &&
-  #       /scripts/setup-nginx-proxy.sh
-  #     " 
-  #   restart: no
-  #   network_mode: host
-  #   privileged: true
-  #   depends_on:
-  #     - site1
-  #     - site2
+  nginx-setup:
+    image: alpine
+    container_name: nginx-setup-host
+    volumes:
+      - /etc/nginx:/etc/nginx
+      - /var/log/nginx:/var/log/nginx
+      - ./scripts:/scripts
+    environment:
+      - SITE1_DOMAIN=${SITE1_DOMAIN}
+      - SITE2_DOMAIN=${SITE2_DOMAIN}
+      - PORT1=8001
+      - PORT2=8002
+    command: >
+      sh -c "
+        apk add --no-cache nginx &&
+        chmod +x /scripts/setup-nginx-proxy.sh &&
+        /scripts/setup-nginx-proxy.sh
+      " 
+    restart: no
+    network_mode: host
+    privileged: true
+    depends_on:
+      - site1
+      - site2
 
   reverse-proxy:
     build: ./reverse-proxy
