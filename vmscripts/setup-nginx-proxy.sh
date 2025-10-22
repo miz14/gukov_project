@@ -8,7 +8,7 @@ echo "=== Настройка nginx reverse proxy ==="
 # Переменные
 DOMAIN1="${DOMAIN1:-site1.example.com}"
 DOMAIN2="${DOMAIN2:-site2.example.com}"
-DOCKER_PORT1="${PORT1:-8001}"
+DOCKER_PORT1="${PORT1:-8003}"
 DOCKER_PORT2="${PORT2:-8002}"
 NGINX_DIR="/etc/nginx"
 SITES_AVAILABLE="$NGINX_DIR/sites-available"
