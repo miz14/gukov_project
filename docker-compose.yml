@@ -1,8 +1,6 @@
 services:
   nginx-setup:
-    build:
-      conte
-      dockerfile: Dockerfile.nginx-setup
+    build: nginx-setup
     container_name: nginx-setup-host
     volumes:
       - /etc/nginx:/etc/nginx
