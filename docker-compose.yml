@@ -1,20 +1,19 @@
 services:
   nginx-setup:
-    build: nginx-setup-host
+    build: 
+      context: ./nginx-setup-host
+      dockerfile: Dockerfile
     container_name: nginx-setup-host
     volumes:
       - /etc/nginx:/etc/nginx
       - /var/log/nginx:/var/log/nginx
       - ./nginx-setup-host/scripts:/scripts
+    command: ["/bin/bash", "-c", "/scripts/setup-nginx-proxy.sh"]
     environment:
       - SITE1_DOMAIN=${SITE1_DOMAIN}
       - SITE2_DOMAIN=${SITE2_DOMAIN}
       - PORT1=8001
       - PORT2=8002
-    command: | 
-      sh -c "
-        /scripts/setup-nginx-proxy.sh
-      "
     restart: no
     network_mode: host
     privileged: true
