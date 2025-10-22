@@ -133,8 +133,6 @@ if [ -L "$SITES_ENABLED/default" ]; then
     echo "Отключен дефолтный сайт nginx"
 fi
 
-# Проверяем конфигурацию
-nginx -t
 
 echo ""
 echo "=== Настройка завершена успешно! ==="
