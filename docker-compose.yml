@@ -3,9 +3,9 @@ services:
     build: ./reverse-proxy
     container_name: reverse-proxy
     restart: unless-stopped
-    ports:
-      - "8001:8001"
-      - "8002:8002"
+    # ports:
+    #   - "8001:8001"
+    #   - "8002:8002"
     networks:
       - app-network
     environment:

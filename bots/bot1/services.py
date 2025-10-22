@@ -1,7 +1,7 @@
 from telebot import types
 from form.name import get_name_content
 from form.states import FormStates
-
+import os
 
 services = [
     'Назначение страховой пенсии',
@@ -15,7 +15,7 @@ services = [
 def get_services_content():
     text = "\n".join([
         '*Мои услуги:*\n',
-        'Полный перечень услуг и цен вы можете найти здесь [pensiaigukov.ru](http://89.111.142.242:8001/)\n\n',
+        f'Полный перечень услуг и цен вы можете найти здесь [pensiaigukov.ru]({os.getenv("SITE1_DOMAIN")})\n\n',
 
         '*Вы можете выбрать одну из тематик ниже для оставления заявки:*\n',
         *[f'**{i}. {service}**' for i, service in enumerate(services, 1)],
