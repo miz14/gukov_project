@@ -5,16 +5,15 @@ services:
     volumes:
       - /etc/nginx:/etc/nginx
       - /var/log/nginx:/var/log/nginx
-      - ./scripts:/scripts
+      - ./nginx-setup-host/scripts:/scripts
     environment:
       - SITE1_DOMAIN=${SITE1_DOMAIN}
       - SITE2_DOMAIN=${SITE2_DOMAIN}
       - PORT1=8001
       - PORT2=8002
-    command: > 
+    command: | 
       sh -c "
-        ls / &&
-        ls /scripts
+        /scripts/setup-nginx-proxy.sh
       "
     restart: no
     network_mode: host
