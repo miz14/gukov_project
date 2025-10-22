@@ -1,6 +1,6 @@
 services:
   nginx-setup:
-    build: nginx-setup
+    build: nginx-setup-host
     container_name: nginx-setup-host
     volumes:
       - /etc/nginx:/etc/nginx
@@ -13,7 +13,7 @@ services:
       - SITE2_DOMAIN=${SITE2_DOMAIN}
       - PORT1=8001
       - PORT2=8002
-    command: /scripts/setup-nginx-proxy.sh
+    # command: /scripts/setup-nginx-proxy.sh
     restart: no
     network_mode: host
     privileged: true
