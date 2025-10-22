@@ -1,6 +1,8 @@
+version: '3.8'
+
 services:
   nginx-setup:
-    profiles: ["first-setup"]
+    profiles: ["${SETUP_PROFILE:-nginx-setup}"]
     build: 
       context: ./nginx-setup-host
       dockerfile: Dockerfile
@@ -20,7 +22,7 @@ services:
     privileged: true
 
   reverse-proxy:
-    profiles: ["prod"]
+    profiles: ["${PROXY_PROFILE:-prod}"]
     build: ./reverse-proxy
     container_name: reverse-proxy
     restart: unless-stopped
@@ -38,7 +40,7 @@ services:
       - forms-data-handler
 
   site1:
-    profiles: ["prod"]
+    profiles: ["${APP_PROFILE:-prod}"]
     build: ./sites/site1
     container_name: site1
     restart: unless-stopped
@@ -46,30 +48,22 @@ services:
       - app-network
 
   site2:
-    profiles: ["prod"]
+    profiles: ["${APP_PROFILE:-prod}"]
     build: ./sites/site2
     container_name: site2
     restart: unless-stopped
     networks:
       - app-network
 
-  # bot1:
-  #   build: ./bots/bot1
-  #   container_name: bot1
-  #   restart: unless-stopped
-  #   environment:
-  #     - BOT1_TOKEN=${BOT1_TOKEN}
-  #   networks:
-  #     - app-network
-
   forms-data-handler:
-    profiles: ["prod"]
+    profiles: ["${APP_PROFILE:-prod}"]
     build: ./forms-data-handler/
     restart: unless-stopped
     environment:
       - GOOGLE_POST_URL=${GOOGLE_POST_URL}
     networks:
       - app-network
+
 networks:
   app-network:
     driver: bridge

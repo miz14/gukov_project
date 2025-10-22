@@ -89,19 +89,6 @@ if [ -L "$SITES_ENABLED/default" ]; then
     echo "Отключен дефолтный сайт nginx"
 fi
 
-# Проверяем синтаксис nginx
-echo "Проверка синтаксиса nginx..."
-nginx -t
-
-# Перезапускаем nginx на хосте
-echo "Перезапуск nginx..."
-if command -v systemctl >/dev/null 2>&1; then
-    systemctl restart nginx
-else
-    # Если systemctl нет, пытаемся перезапустить через service
-    service nginx restart || nginx -s reload
-fi
-
 echo ""
 echo "=== Настройка завершена успешно! ==="
 echo "Файлы созданы на хост-машине:"

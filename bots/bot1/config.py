@@ -10,5 +10,6 @@ class FormStates(StatesGroup):
     form_checking = State()
     form_complete = State()
 
-BOT_TOKEN = os.getenv('BOT1_TOKEN')
+# BOT_TOKEN = os.getenv('BOT1_TOKEN')
+BOT_TOKEN = '8484377292:AAEJ_UxVlTpdEAX9Wn4HDe1tvJzC7mEEkYo'
 BOT_SERVICE = 'Юридические услуги в сфере пенсионного права'
