@@ -1,8 +1,15 @@
-FROM alpine
+FROM nginx:latest
 
 # Устанавливаем зависимости
 RUN apk add --no-cache bash nginx certbot certbot-nginx
 
+RUN apt-get update && apt-get install -y \
+    certbot \
+    python3-certbot-nginx \
+    cron \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+    
 # Создаем директорию для скриптов
 RUN mkdir -p /scripts
 
