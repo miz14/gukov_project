@@ -7,11 +7,7 @@ services:
     volumes:
       - /etc/nginx:/etc/nginx
       - /var/log/nginx:/var/log/nginx
-      - ./nginx-setup-host/scripts:/scripts
-    command: |
-      sh -c "
-        cat /scripts/setup-nginx-proxy.sh
-      "
+      # - ./nginx-setup-host/scripts:/scripts
     environment:
       - SITE1_DOMAIN=${SITE1_DOMAIN}
       - SITE2_DOMAIN=${SITE2_DOMAIN}
