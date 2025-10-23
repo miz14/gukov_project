@@ -33,7 +33,6 @@ services:
       - app-network
 
   forms-data-handler:
-    profiles: ["${ENABLE_APP:-prod}"]
     build: ./forms-data-handler/
     restart: unless-stopped
     environment:
