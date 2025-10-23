@@ -1,7 +1,6 @@
 FROM nginx:latest
 
 # Устанавливаем зависимости
-RUN apk add --no-cache bash nginx certbot certbot-nginx
 
 RUN apt-get update && apt-get install -y \
     certbot \
