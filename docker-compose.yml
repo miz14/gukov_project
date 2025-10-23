@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   nginx-setup:
-    profiles: ["${SETUP_PROFILE:-nginx-setup}"]
+    profiles: ["${ENABLE_SETUP:+nginx-setup}"]
     build: 
       context: ./nginx-setup-host
       dockerfile: Dockerfile
@@ -21,27 +21,31 @@ services:
     restart: no
     network_mode: host
     privileged: true
-
-  reverse-proxy:
-    profiles: ["${PROXY_PROFILE:-prod}"]
-    build: ./reverse-proxy
-    container_name: reverse-proxy
-    restart: unless-stopped
-    ports:
-      - "127.0.0.1:8001:8001"
-      - "127.0.0.1:8002:8002"
-    networks:
-      - app-network
-    environment:
-      - SITE1_DOMAIN=${SITE1_DOMAIN}
-      - SITE2_DOMAIN=${SITE2_DOMAIN}
     depends_on:
       - site1
       - site2
       - forms-data-handler
 
+  # reverse-proxy:
+  #   profiles: ["${PROXY_PROFILE:-prod}"]
+  #   build: ./reverse-proxy
+  #   container_name: reverse-proxy
+  #   restart: unless-stopped
+  #   ports:
+  #     - "127.0.0.1:8001:8001"
+  #     - "127.0.0.1:8002:8002"
+  #   networks:
+  #     - app-network
+  #   environment:
+  #     - SITE1_DOMAIN=${SITE1_DOMAIN}
+  #     - SITE2_DOMAIN=${SITE2_DOMAIN}
+  #   depends_on:
+  #     - site1
+  #     - site2
+  #     - forms-data-handler
+
   site1:
-    profiles: ["${APP_PROFILE:-prod}"]
+    profiles: ["${ENABLE_APP:-prod}"]
     build: ./sites/site1
     container_name: site1
     restart: unless-stopped
@@ -49,7 +53,7 @@ services:
       - app-network
 
   site2:
-    profiles: ["${APP_PROFILE:-prod}"]
+    profiles: ["${ENABLE_APP:-prod}"]
     build: ./sites/site2
     container_name: site2
     restart: unless-stopped
@@ -57,7 +61,7 @@ services:
       - app-network
 
   forms-data-handler:
-    profiles: ["${APP_PROFILE:-prod}"]
+    profiles: ["${ENABLE_APP:-prod}"]
     build: ./forms-data-handler/
     restart: unless-stopped
     environment:

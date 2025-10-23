@@ -20,11 +20,6 @@ if [ -z "$EMAIL" ] || [ "$EMAIL" = "admin@example.com" ]; then
     exit 1
 fi
 
-# Устанавливаем certbot
-echo "Установка certbot..."
-apt-get update
-apt-get install -y certbot python3-certbot-nginx
-
 # Получаем SSL сертификаты
 echo "Получение SSL сертификатов для доменов..."
 certbot --nginx --non-interactive --agree-tos --email "$EMAIL" \
