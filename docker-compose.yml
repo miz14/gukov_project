@@ -17,6 +17,7 @@ services:
       - SITE2_DOMAIN=${SITE2_DOMAIN}
       - PORT1=8001
       - PORT2=8002
+      - CERTBOT_EMAIL=${CERTBOT_EMAIL}
     restart: no
     network_mode: host
     privileged: true

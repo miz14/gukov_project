@@ -1,71 +1,60 @@
 #!/bin/bash
+
+# Скрипт настройки SSL сертификатов для nginx
 set -e
 
-echo "Starting SSL certificate setup..."
+echo "=== Настройка SSL сертификатов ==="
+
+# Переменные из окружения Docker
+DOMAIN1="${SITE1_DOMAIN:-site1.example.com}"
+DOMAIN2="${SITE2_DOMAIN:-site2.example.com}"
+EMAIL="${CERTBOT_EMAIL:-admin@example.com}"
+
+echo "Домены: $DOMAIN1, $DOMAIN2"
+echo "Email для сертификатов: $EMAIL"
 
 # Проверяем наличие необходимых переменных
-if [ -z "$SITE1_DOMAIN" ] || [ -z "$SITE2_DOMAIN" ]; then
-    echo "Error: SITE1_DOMAIN and SITE2_DOMAIN environment variables are required"
+if [ -z "$EMAIL" ] || [ "$EMAIL" = "admin@example.com" ]; then
+    echo "Ошибка: Не указан email для сертификатов"
+    echo "Установите переменную CERTBOT_EMAIL"
     exit 1
 fi
 
-# Ждем запуска nginx
-echo "Waiting for nginx to be ready..."
-sleep 10
+# Устанавливаем certbot
+echo "Установка certbot..."
+apt-get update
+apt-get install -y certbot python3-certbot-nginx
 
-# Функция для получения сертификата
-setup_certificate() {
-    local domain="$1"
-    local www_domain="www.$domain"
-    echo "Setting up SSL certificate for: $domain, $www_domain"
-    
-    # Проверяем, есть ли уже сертификат
-    if certbot certificates | grep -q "$domain"; then
-        echo "Certificate for $domain already exists, skipping..."
-        return 0
-    fi
-    
-    # Получаем сертификат используя nginx plugin
-    if certbot --nginx --non-interactive --agree-tos \
-        --email "admin@$domain" \
-        -d "$domain" -d "$www_domain" \
-        --redirect; then
-        echo "Successfully obtained certificate for: $domain, $www_domain"
-    else
-        echo "Failed to obtain certificate for: $domain, $www_domain"
-        echo "Trying standalone mode as fallback..."
-        
-        # Останавливаем nginx временно для standalone режима
-        nginx -s stop
-        sleep 2
-        
-        if certbot certonly --standalone --non-interactive --agree-tos \
-            --email "admin@$domain" \
-            -d "$domain" -d "$www_domain"; then
-            echo "Successfully obtained certificate in standalone mode"
-            # Запускаем nginx обратно
-            nginx
-            sleep 2
-        else
-            echo "Failed to obtain certificate in standalone mode"
-            nginx
-            return 1
-        fi
-    fi
-}
-
-# Настраиваем сертификаты для каждого домена
-setup_certificate "$SITE1_DOMAIN"
-setup_certificate "$SITE2_DOMAIN"
+# Получаем SSL сертификаты
+echo "Получение SSL сертификатов для доменов..."
+certbot --nginx --non-interactive --agree-tos --email "$EMAIL" \
+    -d "$DOMAIN1" \
+    -d "www.$DOMAIN1" \
+    -d "$DOMAIN2" \
+    -d "www.$DOMAIN2" \
+    --redirect  # Автоматически добавляет редирект с HTTP на HTTPS
 
 # Настраиваем автоматическое обновление сертификатов
-echo "Setting up certificate auto-renewal..."
-echo "0 12 * * * /usr/bin/certbot renew --quiet && nginx -s reload" | crontab -
+echo "Настройка автоматического обновления сертификатов..."
+
+# Создаем cron задание для обновления сертификатов
+echo "0 12 * * * /usr/bin/certbot renew --quiet" > /etc/cron.d/certbot-renewal
+chmod 644 /etc/cron.d/certbot-renewal
+
+# Запускаем cron службу
 service cron start
 
-echo "SSL certificate setup completed successfully!"
-
 # Проверяем конфигурацию nginx
+echo "Проверка конфигурации nginx..."
 nginx -t
 
-echo "Nginx configuration with SSL is ready!"
+echo ""
+echo "=== Настройка SSL завершена успешно! ==="
+echo "SSL сертификаты получены для:"
+echo "  - $DOMAIN1"
+echo "  - www.$DOMAIN1"
+echo "  - $DOMAIN2"
+echo "  - www.$DOMAIN2"
+echo ""
+echo "Автоматическое обновление настроено через cron"
+echo "Проверить статус сертификатов: certbot certificates"
