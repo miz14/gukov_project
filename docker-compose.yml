@@ -2,7 +2,6 @@ version: '3.8'
 
 services:
   reverse-proxy:
-    profiles: ["${PROXY_PROFILE:-prod}"]
     build: ./reverse-proxy
     container_name: reverse-proxy
     restart: unless-stopped
