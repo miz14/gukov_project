@@ -6,11 +6,10 @@ set -e
 echo "=== Настройка nginx reverse proxy ==="
 
 # Переменные из окружения Docker
-DOMAIN1="${SITE1_DOMAIN}"
-DOMAIN2="${SITE2_DOMAIN}"
-SITE1_PORT="${SITE1_PORT}"
-SITE2_PORT="${SITE2_PORT}"
-FORMS_DATA_HANDLER_PORT="${FORMS_DATA_HANDLER_PORT}"
+DOMAIN1="${1:-site1.example.com}"
+DOMAIN2="${2:-site2.example.com}"
+SITE1_PORT="${3:-8001}"
+SITE2_PORT="${4:-8002}"
 
 NGINX_DIR="/etc/nginx"
 SITES_AVAILABLE="$NGINX_DIR/sites-available"
@@ -45,28 +44,11 @@ server {
     server_name $DOMAIN1 www.$DOMAIN1;
 
     location / {
-        proxy_pass localhost:$SITE1_PORT;
+        proxy_pass http://localhost:$SITE1_PORT;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto \$scheme;
-        
-        # Дополнительные настройки
-        proxy_connect_timeout 60s;
-        proxy_send_timeout 60s;
-        proxy_read_timeout 60s;
-    }
-
-    location /api/ {
-        proxy_pass localhost:$FORMS_DATA_HANDLER_PORT;
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \$scheme;
-        
-        proxy_connect_timeout 60s;
-        proxy_send_timeout 60s;
-        proxy_read_timeout 60s;
     }
 }
 
@@ -76,19 +58,7 @@ server {
     server_name $DOMAIN2 www.$DOMAIN2;
 
     location / {
-        proxy_pass localhost:$SITE2_PORT;
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \$scheme;
-        
-        proxy_connect_timeout 60s;
-        proxy_send_timeout 60s;
-        proxy_read_timeout 60s;
-    }
-
-    location /api/ {
-        proxy_pass localhost:$FORMS_DATA_HANDLER_PORT;
+        proxy_pass http://localhost:$SITE2_PORT;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
@@ -123,6 +93,10 @@ if [ -L "$SITES_ENABLED/default" ]; then
     rm "$SITES_ENABLED/default"
     echo "Отключен дефолтный сайт nginx"
 fi
+
+# Проверяем конфигурацию nginx
+echo "Проверка конфигурации nginx..."
+nginx -t
 
 
 echo ""

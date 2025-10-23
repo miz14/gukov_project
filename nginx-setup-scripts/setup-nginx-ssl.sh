@@ -6,9 +6,9 @@ set -e
 echo "=== Настройка SSL сертификатов ==="
 
 # Переменные из окружения Docker
-DOMAIN1="${SITE1_DOMAIN:-site1.example.com}"
-DOMAIN2="${SITE2_DOMAIN:-site2.example.com}"
-EMAIL="${CERTBOT_EMAIL:-admin@example.com}"
+DOMAIN1="${1:-site1.example.com}"
+DOMAIN2="${2:-site2.example.com}"
+EMAIL="${3:-admin@example.com}"
 
 echo "Домены: $DOMAIN1, $DOMAIN2"
 echo "Email для сертификатов: $EMAIL"

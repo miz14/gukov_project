@@ -1,67 +1,35 @@
 version: '3.8'
 
 services:
-  nginx-setup:
-    profiles: ["${ENABLE_SETUP:+nginx-setup}"]
-    build: 
-      context: ./nginx-setup-host
-      dockerfile: Dockerfile
-    container_name: nginx-setup-host
-    volumes:
-      - /etc/nginx:/etc/nginx
-      - /var/log/nginx:/var/log/nginx
-      - /etc/letsencrypt:/etc/letsencrypt
-      - /var/lib/letsencrypt:/var/lib/letsencrypt
+  reverse-proxy:
+    profiles: ["${PROXY_PROFILE:-prod}"]
+    build: ./reverse-proxy
+    container_name: reverse-proxy
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8001:8001"
+      - "127.0.0.1:8002:8002"
+    networks:
+      - app-network
     environment:
       - SITE1_DOMAIN=${SITE1_DOMAIN}
       - SITE2_DOMAIN=${SITE2_DOMAIN}
-      - SITE1_PORT=8001
-      - SITE2_PORT=8002
-      - FORMS_DATA_HANDLER_PORT=3000
-      - CERTBOT_EMAIL=${CERTBOT_EMAIL}
-    restart: no
-    network_mode: host
-    privileged: true
     depends_on:
       - site1
       - site2
       - forms-data-handler
 
-  # reverse-proxy:
-  #   profiles: ["${PROXY_PROFILE:-prod}"]
-  #   build: ./reverse-proxy
-  #   container_name: reverse-proxy
-  #   restart: unless-stopped
-  #   ports:
-  #     - "127.0.0.1:8001:8001"
-  #     - "127.0.0.1:8002:8002"
-  #   networks:
-  #     - app-network
-  #   environment:
-  #     - SITE1_DOMAIN=${SITE1_DOMAIN}
-  #     - SITE2_DOMAIN=${SITE2_DOMAIN}
-  #   depends_on:
-  #     - site1
-  #     - site2
-  #     - forms-data-handler
-
   site1:
-    profiles: ["${ENABLE_APP:-prod}"]
     build: ./sites/site1
     container_name: site1
     restart: unless-stopped
-    ports:
-      - "127.0.0.1:8001:80"
     networks:
       - app-network
 
   site2:
-    profiles: ["${ENABLE_APP:-prod}"]
     build: ./sites/site2
     container_name: site2
     restart: unless-stopped
-    ports:
-      - "127.0.0.1:8002:80"
     networks:
       - app-network
 
@@ -69,8 +37,6 @@ services:
     profiles: ["${ENABLE_APP:-prod}"]
     build: ./forms-data-handler/
     restart: unless-stopped
-    ports:
-      - "127.0.0.1:3000:3000"
     environment:
       - GOOGLE_POST_URL=${GOOGLE_POST_URL}
     networks:
