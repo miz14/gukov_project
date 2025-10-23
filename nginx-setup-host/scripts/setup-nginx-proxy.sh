@@ -6,8 +6,12 @@ set -e
 echo "=== Настройка nginx reverse proxy ==="
 
 # Переменные из окружения Docker
-DOMAIN1="${SITE1_DOMAIN:-site1.example.com}"
-DOMAIN2="${SITE2_DOMAIN:-site2.example.com}"
+DOMAIN1="${SITE1_DOMAIN}"
+DOMAIN2="${SITE2_DOMAIN}"
+SITE1_PORT="${SITE1_PORT}"
+SITE2_PORT="${SITE2_PORT}"
+FORMS_DATA_HANDLER_PORT="${FORMS_DATA_HANDLER_PORT}"
+
 NGINX_DIR="/etc/nginx"
 SITES_AVAILABLE="$NGINX_DIR/sites-available"
 SITES_ENABLED="$NGINX_DIR/sites-enabled"
@@ -35,26 +39,13 @@ cat > "/tmp/$SITE_CONFIG" << EOF
 # Reverse Proxy конфигурация для Docker приложений
 # Файл создан автоматически скриптом setup-nginx-proxy.sh
 
-# Upstreams для контейнеров
-upstream site1 {
-    server site1:80;
-}
-
-upstream site2 {
-    server site2:80;
-}
-
-upstream forms-data-handler {
-    server forms-data-handler:3000;
-}
-
 # Сервер для $DOMAIN1
 server {
     listen 80;
     server_name $DOMAIN1 www.$DOMAIN1;
 
     location / {
-        proxy_pass http://site1;
+        proxy_pass localhost:$SITE1_PORT;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
@@ -67,7 +58,7 @@ server {
     }
 
     location /api/ {
-        proxy_pass http://forms-data-handler/;
+        proxy_pass localhost:$FORMS_DATA_HANDLER_PORT;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
@@ -85,7 +76,7 @@ server {
     server_name $DOMAIN2 www.$DOMAIN2;
 
     location / {
-        proxy_pass http://site2;
+        proxy_pass localhost:$SITE2_PORT;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
@@ -97,7 +88,7 @@ server {
     }
 
     location /api/ {
-        proxy_pass http://forms-data-handler/;
+        proxy_pass localhost:$FORMS_DATA_HANDLER_PORT;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;

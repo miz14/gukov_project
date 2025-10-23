@@ -15,8 +15,9 @@ services:
     environment:
       - SITE1_DOMAIN=${SITE1_DOMAIN}
       - SITE2_DOMAIN=${SITE2_DOMAIN}
-      - PORT1=8001
-      - PORT2=8002
+      - SITE1_PORT=8001
+      - SITE2_PORT=8002
+      - FORMS_DATA_HANDLER_PORT=3000
       - CERTBOT_EMAIL=${CERTBOT_EMAIL}
     restart: no
     network_mode: host
@@ -49,6 +50,8 @@ services:
     build: ./sites/site1
     container_name: site1
     restart: unless-stopped
+    ports:
+      - "127.0.0.1:8001:80"
     networks:
       - app-network
 
@@ -57,6 +60,8 @@ services:
     build: ./sites/site2
     container_name: site2
     restart: unless-stopped
+    ports:
+      - "127.0.0.1:8002:80"
     networks:
       - app-network
 
@@ -64,6 +69,8 @@ services:
     profiles: ["${ENABLE_APP:-prod}"]
     build: ./forms-data-handler/
     restart: unless-stopped
+    ports:
+      - "127.0.0.1:3000:3000"
     environment:
       - GOOGLE_POST_URL=${GOOGLE_POST_URL}
     networks:
